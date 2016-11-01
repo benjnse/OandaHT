@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a1d25f9f-f5e6-45d0-a7bd-2d7dcd4b62ac" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OandaHT_function.py" afterPath="$PROJECT_DIR$/OandaHT_function.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OandaHT_main.py" afterPath="$PROJECT_DIR$/OandaHT_main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OandaHT_model.py" afterPath="$PROJECT_DIR$/OandaHT_model.py" />
-    </list>
+    <list default="true" id="a1d25f9f-f5e6-45d0-a7bd-2d7dcd4b62ac" name="Default" comment="" />
     <ignored path="OandaHT.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
