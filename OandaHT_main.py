@@ -11,9 +11,10 @@ HFobj4=HFtrading("AUD_USD", set_obj)
 HFobj5=HFtrading("NZD_USD", set_obj)
 HFobj6=HFtrading("USD_CHF", set_obj)
 HFobj7=HFtrading("USD_CAD", set_obj)
+HFobj8=HFtrading("EUR_CHF", set_obj)
 
 
-hf_vet=[HFobj1, HFobj2, HFobj3, HFobj4, HFobj5, HFobj6, HFobj7]
+hf_vet=[HFobj1, HFobj2, HFobj3, HFobj4, HFobj5, HFobj6, HFobj7, HFobj8]
 
 #start trading
 threads=[]
