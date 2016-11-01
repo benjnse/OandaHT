@@ -22,9 +22,13 @@ class HFtrading:
         self.client=None
         self.q=0
         self.max_inventory=set_obj.get_max_inventory()
+        if ('JPY' in self.underlying)==True:
+            self.prec=3
+        else:
+            self.prec=5
         #connect
         self.connect()
-        sabr_calib=SABRcalib(0.5, 1/52)
+        sabr_calib=SABRcalib(0.5, 1.0/52)
         sabr_calib.calib(self.get_hist_data(262*5))
         self.SABRpara=sabr_calib.get_para()
 
@@ -51,20 +55,6 @@ class HFtrading:
         except Exception as err:
             print >>self.f, err
 
-    def get_hist_vol(self):
-
-        hist_resp=self.client.get_instrument_history(
-            instrument=self.underlying,
-            candle_format="midpoint",
-            granularity="D",
-            count=90,
-        )
-
-        ret_tmp=[]
-        for i in range(1,len(hist_resp['candles'])):
-            ret_tmp.append(math.log(hist_resp['candles'][i]['closeMid']/hist_resp['candles'][i-1]['closeMid']))
-
-        return np.std(ret_tmp)*math.sqrt(262)
 
     def get_atm_vol(self):
         return self.SABRpara[0]*self.get_mid_price()**(self.SABRpara[1]-1)
@@ -81,6 +71,21 @@ class HFtrading:
             price.append(hist_resp['candles'][i]['closeMid'])
 
         return price
+
+    def get_hist_vol(self):
+
+        hist_resp=self.client.get_instrument_history(
+            instrument=self.underlying,
+            candle_format="midpoint",
+            granularity="S5",
+            count=100,
+        )
+
+        ret_tmp=[]
+        for i in range(1,len(hist_resp['candles'])):
+            ret_tmp.append(hist_resp['candles'][i]['closeMid']-hist_resp['candles'][i-1]['closeMid'])
+
+        return np.std(ret_tmp)
 
     def get_live_sprd(self):
         try:
@@ -109,8 +114,8 @@ class HFtrading:
         self.weekday=datetime.datetime.today().weekday()
         self.now=datetime.datetime.now()
         self.q=self.get_current_inventory()
-        self.vol=self.get_atm_vol()
-        print self.q, self.vol
+        #self.vol=self.get_atm_vol()
+        self.vol=self.get_hist_vol()
 
     def start(self):
         self.load_data()
@@ -120,12 +125,15 @@ class HFtrading:
 
         model=HFmodel(self.vol)
         model.calib(self.get_live_sprd())
-        model.calc(self.mid_price, self.q, 0, 1/52)
+        model.calc(self.mid_price, self.q, 0, 1)
 
-        print 'market mid price: '+str(self.mid_price)
-        print 'model reservation price: '+str(model.get_mid_rev_price())
-        print 'model bid price: '+str(model.get_opt_bid())
-        print 'model ask price: '+str(model.get_opt_ask())
+        print >> self.f, 'market mid price: '+str(self.mid_price)
+        print >> self.f, 'model reservation price: '+str(model.get_mid_rev_price())
+        print >> self.f, 'model bid price: '+str(model.get_opt_bid(self.prec))
+        print >> self.f, 'model ask price: '+str(model.get_opt_ask(self.prec))
+        print >> self.f, 'gamma: '+str(model.gamma)
+        print >> self.f, 'inventory: '+str(self.q)
+        print >> self.f, 'volatility (5s): '+str(self.vol)
 
         try:
             print 'heartbeat('+self.underlying+') '+str(self.now)+'...'
@@ -141,7 +149,7 @@ class HFtrading:
                 units=self.set_obj.get_trade_size(),
                 side="sell",
                 type="limit",
-                price=model.get_opt_ask(),
+                price=model.get_opt_ask(self.prec),
                 expiry=expiry_order,
             )
 
@@ -150,7 +158,7 @@ class HFtrading:
                 units=self.set_obj.get_trade_size(),
                 side="buy",
                 type="limit",
-                price=model.get_opt_bid(),
+                price=model.get_opt_bid(self.prec),
                 expiry=expiry_order,
             )
             #place order

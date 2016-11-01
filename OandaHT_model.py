@@ -7,7 +7,7 @@ class HFmodel:
 
     def __init__(self, sigma):
 
-        self.sigma=0
+        self.sigma=sigma
         self.gamma=0
         self.k=1.5
         self.mid_rev_price=None
@@ -19,7 +19,7 @@ class HFmodel:
         x0=[3]
         result = minimize(self.obj_func, x0, args=(sprd), method='nelder-mead', options={'xtol': 1e-8, 'disp': False})
         self.gamma=result.x[0]
-        print 'gamma: '+str(self.gamma)
+        #print 'gamma: '+str(self.gamma)
 
     def obj_func(self, gamma, sprd):
         return (sprd-2/gamma*math.log(1+gamma/self.k))**2
@@ -27,12 +27,11 @@ class HFmodel:
     def get_mid_rev_price(self):
         return self.mid_rev_price
 
-    def get_opt_bid(self):
-        return round(self.mid_rev_price-1/self.gamma*math.log(1+self.gamma/self.k),5)
+    def get_opt_bid(self, prec):
+        return round(self.mid_rev_price-1/self.gamma*math.log(1+self.gamma/self.k), prec)
 
-    def get_opt_ask(self):
-        return round(self.mid_rev_price+1/self.gamma*math.log(1+self.gamma/self.k),5)
-
+    def get_opt_ask(self, prec):
+        return round(self.mid_rev_price+1/self.gamma*math.log(1+self.gamma/self.k), prec)
 
 
 class SABRcalib:
